@@ -1,18 +1,13 @@
 `timescale 1ns / 1ps
+/* All files are owned by Kris Kalavantavanich. 
+ * Feel free to use/modify/distribute in the condition that this copyright header is kept unmodified.
+ * Github: https://github.com/kkalavantavanich/SD2017 */
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
 // Create Date: 05/19/2017 12:40:27 PM
-// Design Name: 
+// Design Name: CRC Generator - Master
 // Module Name: crcGenMaster
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
+// Project Name: SD2017
+// Target Devices: Basys3
 // Revision: 1.02
 // Revision 1.02 - General CRC generator and size
 // Revision 0.01 - File Created
