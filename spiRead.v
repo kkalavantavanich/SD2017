@@ -1,18 +1,14 @@
 `timescale 1ns / 1ps
+/* All files are owned by Kris Kalavantavanich. 
+ * Feel free to use/modify/distribute in the condition that this copyright header is kept unmodified.
+ * Github: https://github.com/kkalavantavanich/SD2017 */
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
+// Creator: Kris Kalavantavanich (kkalavantavanich@gmail.com)
 // Create Date: 05/20/2017 08:46:14 AM
-// Design Name: 
+// Design Name: SPI Read Module
 // Module Name: spiRead
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
+// Project Name: SD2017
+// Target Devices: Basys3
 // Revision: 1.02
 // Revision 1.02 - Debug
 // Revision 1.00 - Finished Read Operation
