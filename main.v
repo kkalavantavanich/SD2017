@@ -1,18 +1,13 @@
 `timescale 1ns / 1ps
+/* All files are owned by Kris Kalavantavanich. 
+ * Feel free to use/modify/distribute in the condition that this copyright header is kept unmodified.
+ * Github: https://github.com/kkalavantavanich/SD2017 */
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: Kris Kalavantavanich
-// 
 // Create Date: 05/18/2017 11:17:30 PM
-// Design Name: 
+// Design Name: Main SD Module
 // Module Name: main
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
+// Project Name: SD2017
+// Target Devices: Basys3
 // Revision: 1.21
 // Revisiom 1.21 - Complete CRCD (CRC-16 Data In)
 // Revision 1.20 - Added UBADDR + (partial CRCD)
@@ -29,12 +24,7 @@
 // Additional Comments:
 //
 // KNOWN BUGS //
-// - all pre cmd send warmup state doesn't wait for warmup delay
-// --- caused by ov is still 1 from previous cooldown
-// ----- solution1 add state before crc
-// ----- solution2 modify crc-start-gen state to include wait for overflow == 0; 
-// - state change uses 2 cpuClocks
-// ----- must reverse temp. solution (negedge cpuClock)
+//
 // F_CPU = 100000000 (100 MHz)
 // F_SPI = 390625    (390.6 kHz)
 //////////////////////////////////////////////////////////////////////////////////
@@ -154,11 +144,7 @@ assign SD_CS = (CM_EN ? CM_CS : INTL_CS);
 //assign UBADDR = 32'h0;
 
 // Data Read //
-//reg [31:0] R;
 reg [6:0] _yb = 0; // vertical SD reading (128)
-
-//reg [1:0] outIndex = 3; // <= To be taken out
-//wire [1:0] inIndex = _yb[1:0]; // To be written in from SD <=
 
 // Single Read (8-bit)
 reg INTLRS_ST = 0;
