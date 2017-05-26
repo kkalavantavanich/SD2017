@@ -1,18 +1,15 @@
 `timescale 1ns / 1ps
+/* All files are owned by Kris Kalavantavanich. 
+ * Feel free to use/modify/distribute in the condition that this copyright header is kept unmodified.
+ * Github: https://github.com/kkalavantavanich/SD2017 */
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
 // Create Date: 05/19/2017 06:09:53 PM
-// Design Name: 
+// Design Name: Seven Segment Master
 // Module Name: segMaster
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
+// Project Name: SD2017
+// Description: This module receives an 4-digit hexadecimal number and displays it.
+// DP is set "ON" when Invalid number received.
+// Target Devices: Basys3
 // Revision:
 // Revision 0.01 - File Created
 // Additional Comments:
