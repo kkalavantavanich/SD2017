@@ -1,19 +1,15 @@
 `timescale 1ns / 1ps
+/* All files are owned by Kris Kalavantavanich. 
+ * Feel free to use/modify/distribute in the condition that this copyright header is kept unmodified.
+ * Github: https://github.com/kkalavantavanich/SD2017 */
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
 // Create Date: 05/19/2017 08:59:36 AM
-// Design Name: 
+// Design Name: Counter 
 // Module Name: counter
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
+// Project Name: SD2017
+// Target Devices: Basys3
+// Dependencies:
+// Revision: 0.01
 // Revision 0.01 - File Created
 // Additional Comments:
 // 
