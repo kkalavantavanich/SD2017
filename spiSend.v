@@ -1,8 +1,8 @@
 `timescale 1ns / 1ps
+/* All files are owned by Kris Kalavantavanich. 
+ * Feel free to use/modify/distribute in the condition that this copyright header is kept unmodified.
+ * Github: https://github.com/kkalavantavanich/SD2017 */
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
 // Create Date: 05/19/2017 10:23:10 PM
 // Design Name: SPI_SEND
 // Module Name: spiSend
