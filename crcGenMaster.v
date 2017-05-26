@@ -13,34 +13,39 @@
 // 
 // Dependencies: 
 // 
-// Revision:
+// Revision: 1.02
+// Revision 1.02 - General CRC generator and size
 // Revision 0.01 - File Created
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
 // CRC-7 Generator 
-module crcGenMaster(
+module crcGenMaster # (
+parameter bitLength = 40,
+parameter crcLength = 7
+)(
     clk,            // Clock 
     useModule,      // sync. CRC Slave will start on posedge and keeps crc until negedge 
     instream,       // input bit stream. length defined by parameter 'bitLength'. Should not change while useModule.
+    generator,      // crc generator polynomial
     crc,            // crc value
     finish,         // sync. 1 = isFinished
     state           // {_start, _running, _waiting}, used for debugging
     );
 
-parameter bitLength = 40;
 
 // 'public' variables
 input clk;
 input useModule;
-input [bitLength-1:0] instream;
-output wire [6:0] crc;
+input [bitLength - 1:0] instream;
+input [crcLength:0] generator;
+output wire [crcLength - 1:0] crc;
 output reg finish = 0;
 output [2:0] state;
 
 // 'private' variables
-wire [6:0] _crc; 
+wire [crcLength - 1:0] _crc; 
 reg _enable = 0, _clear = 1, _sync_enable; 
 reg _start = 0, _running = 0, _waiting = 0;
 
@@ -50,13 +55,12 @@ assign _datain = _enable ? instream[_i] : 1'b0;
 
 reg _sync_useModule;
 reg [1:0] _edge_useModule;
-assign crc = (_sync_useModule || _running ? _crc : 7'bZ);
+assign crc = (_sync_useModule || _running ? _crc : {crcLength{1'bZ}});
 
 reg [1:0] _error = 0;
 
 // 'Private' Slave CRC Generator
-crcGenerator c0 (_datain, clk, _clear, _sync_enable, _crc);
-
+crcGenerator c0 (_datain, clk, _clear, _sync_enable, generator, _crc);
 
 always @ (posedge clk) begin
     if (_edge_useModule == 2'b01 && ~_start && ~_running && ~_waiting) begin
@@ -67,9 +71,10 @@ always @ (posedge clk) begin
         _start  <= 1; // state start & not running & not waiting
     end else if (_edge_useModule == 2'b11 && _start &&  _waiting) begin
         // end condition
-        finish <= 1;
         _start <= 0;  // state not start & not running & waiting
         _enable <= 0;
+    end else if (_edge_useModule == 2'b11 && ~_start && _waiting) begin
+        finish <= 1;
     end else if (_edge_useModule == 2'b10)  begin
         // unuse module
         finish  <= 0;

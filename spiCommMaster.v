@@ -9,7 +9,9 @@
 // Description: 
 // 
 // Dependencies: main.v
-// Revision:
+// Revision: 1.02
+// Revision 1.02 - Debug
+// Revision 1.00 - Finished Read Operation
 // Revision 0.01 - File Created
 // Additional Comments:
 // - Doesn't interpret response -- (Master of this)'s job.
@@ -22,6 +24,7 @@ module spiCommMaster(
     input enable,               // If LOW => all outputs will be Z (high impedence) (Active HIGH)
     input reset,                // IF HIGH => Reset to ST_IDLE (Active HIGH)
     input spiClockEn,           // Enable SPI Clock (SD_SDLK) (Active HIGH)
+    input spiClockBS,           // 0 = normal, 1 = byte sync mode
     
     output errorInterrupt,      // HIGH <= Error has occurred
     output [3:0] errorType,     // output the type of error
@@ -98,10 +101,11 @@ assign commFinish = (CST == 4'b1100);
 wire spiClock, _spiClock;                     // _spiClock is without enable, spiClock is with enable
 clockDiv #(8) SPICLKM (cpuClock, _spiClock);       // run _spiClock at 390.6 kHz
 //clockDiv #(9) c4(cpuClock, _spiClock);      // run _spiClock at 195.3 kHz
-assign spiClock = (spiClockEn && enable) ? _spiClock : 1; // spiClock is active low
-assign SD_SCLK = (spiClockEn ? _spiClock : 1);
+wire byte_sync;
+assign spiClock = (spiClockEn && enable) ? byte_sync & _spiClock : 1; // spiClock is active low
+assign SD_SCLK = (spiClockEn ? byte_sync & _spiClock : 1);
 
-// SPI TIMEOUT COUNTER (TMTO)//
+// SPI TIMEOUT TIMER (TMTO)//
 localparam TMTO_bitSize = 16;
 reg TMTO_RST = 1;
 wire [TMTO_bitSize-1 :0] TMTO_OUT;
@@ -111,7 +115,7 @@ wire TMTO_TOI;                       // Timeout Interrupt
 assign TMTO_TOI = (TMTO_OUT >= TMTO_VAL);
 counter #(TMTO_bitSize) TMTOM (_spiClock, TMTO_RST, TMTO_OUT, TMTO_OV);
 
-// SPI COOLDOWN COUNTER (TMWC)// 
+// SPI COOLDOWN TIMER (TMWC)// 
 localparam TMWC_bitSize = 4;
 reg TMWC_RST = 1;
 wire [TMWC_bitSize-1 :0] TMWC_OUT;
@@ -119,6 +123,28 @@ wire TMWC_OV;          // set whether cooldown timer finished
 wire TMWC_MSB;         // set whether SD_CS is on
 assign TMWC_MSB = TMWC_OUT[TMWC_bitSize - 1];
 counter #(TMWC_bitSize) TMWCM (_spiClock, TMWC_RST, TMWC_OUT, TMWC_OV);
+
+// SPI BYTE SYNC TIMER (TMBS) //
+// every 9 bit 1 bit is down
+localparam TMBS_bitSize = 4;
+reg TMBS_RST = 1;
+wire [TMBS_bitSize-1 :0] TMBS_OUT;
+wire TMBS_OV;          // set whether cooldown timer finished
+wire TMBS_MSB;         // set whether SD_CS is on
+counter #(TMBS_bitSize, 8) TMBSM (_spiClock, TMBS_RST, TMBS_OUT, TMBS_OV);
+wire TMBS_TOGGLE;
+assign TMBS_TOGGLE = TMBS_OUT[3];
+assign byte_sync = spiClockBS ? ~TMBS_TOGGLE : 1'b1;
+
+reg [1:0] spiClockBS_BUFF = 0;
+always @ (negedge _spiClock) begin
+    if ({spiClockBS_BUFF, spiClockBS} == 2'b01) begin // posedge
+        TMBS_RST = 0;
+    end else if ({spiClockBS_BUFF, spiClockBS} == 2'b10) begin // negedge
+        TMBS_RST = 1;
+    end
+    spiClockBS_BUFF <= {spiClockBS_BUFF, spiClockBS};
+end
 
 // COMMANDS // 
 // Constructed from (Inputs to Module)
@@ -144,19 +170,19 @@ spiSend SPSM (spiClock, SPS_STA, SPS_BUFF, MOSI, SPS_FIN);
 reg SPRS_STA = 0;                        // SPRSM Start
 wire [7:0] SPRS_OUT;                     // Output from SPRSM (Can be high impedence)
 wire SPRS_FIN;                           // SPRSM Finish
-spiRead SPRSM (spiClock, SPRS_STA, SD_MISO, SPRS_FIN, SPRS_OUT);
+spiRead SPRSM (spiClock, SPRS_STA, SD_MISO, SPRS_FIN, SPRS_OUT, 1'b1);
 
 // Double Byte Response (Double Byte) (SPRD)
 reg SPRD_STA = 0;   
 wire [15:0] SPRD_OUT;         
 wire SPRD_FIN;
-spiRead #(2) SPRDM (spiClock, SPRD_STA, SD_MISO, SPRD_FIN, SPRD_OUT);
+spiRead #(2) SPRDM (spiClock, SPRD_STA, SD_MISO, SPRD_FIN, SPRD_OUT, 1'b1);
 
 // Wide Response (R3 / R7) -- 5 bytes (R1 + Rn) (SPRW)
 reg SPRW_STA = 0;
 wire [39:0] SPRW_OUT;
 wire SPRW_FIN;
-spiRead #(5) SPRWM (spiClock, SPRW_STA, SD_MISO, SPRW_FIN, SPRW_OUT);
+spiRead #(5) SPRWM (spiClock, SPRW_STA, SD_MISO, SPRW_FIN, SPRW_OUT, 1'b1);
 
 // SPI Reading -- Common //
 wire SPR_FIN;
@@ -172,16 +198,12 @@ reg CRCR_EN = 0;
 wire CRCR_FIN;
 wire [6:0] CRCR_OUT;
 wire [2:0] CRCR_ST;
-crcGenMaster CRCRM (cpuClock, CRCR_EN, CRCR_IN, CRCR_OUT, CRCR_FIN, CRCR_ST);
+crcGenMaster CRCRM (cpuClock, CRCR_EN, CRCR_IN, 8'b10001001, CRCR_OUT, CRCR_FIN, CRCR_ST);
 assign CRCR_IN = {1'b0, CMD_TRANSMIT, CMD_INDEX, CMD_ARG};
 assign CMD_CRC = CRCR_OUT;
 
-// 'Data CRC-16 (CRCD) //
-
-
-
 // MAIN STATE MACHINE //
-always @ (posedge cpuClock) begin
+always @ (negedge cpuClock) begin
     if (reset) begin
         NST <= ST_IDLE;     // Set Next State to IDLE
         

@@ -31,10 +31,12 @@ input clk, reset;
 parameter bitSize = 8;
 output reg [bitSize-1:0] out = 0;
 output wire overflow;
+parameter [bitSize-1:0] clearVal = {bitSize{1'b1}};
 assign overflow = &out;
 
 always @ (posedge clk) begin
     if (reset) out = 0;
+    else if (out == clearVal) out = 0;
     else out = out + 1;
 end
 

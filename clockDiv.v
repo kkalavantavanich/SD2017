@@ -1,11 +1,11 @@
-
+`timescale 1ns / 1ps
 module clockDiv(
     input clk,
-    output reg out
+    output out
     );
 
-parameter scale = 5; // default divide by 2^5, max 15
-reg r[15:0];
+parameter scale = 5; // default divide by 2^5, max 20
+reg [scale:0] r;
 
 initial r = 0;
 assign out = r[scale];

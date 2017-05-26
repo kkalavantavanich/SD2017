@@ -12,7 +12,8 @@
 // Sending process will start on `start` HIGH (synchronous with negedge)
 // Process finish is notified by `finish` HIGH (synchronous with negedge)
 // Dependencies: main.v
-// Revision:
+// Revision: 1.00
+// Revision 1.00 - Finished Read Operation
 // Revision 0.01 - File Created
 // Additional Comments: SET ON NEGEDGE!!!!
 //////////////////////////////////////////////////////////////////////////////////

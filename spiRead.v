@@ -13,7 +13,9 @@
 // 
 // Dependencies: 
 // 
-// Revision:
+// Revision: 1.02
+// Revision 1.02 - Debug
+// Revision 1.00 - Finished Read Operation
 // Revision 0.01 - File Created
 // Additional Comments:
 // 
@@ -25,7 +27,8 @@ module spiRead(
     start,
     bitIn,
     finish,
-    byteOut
+    byteOut, 
+    waitForBitIn
 );
 parameter outByteSize = 1;
 // 'public' variables
@@ -34,6 +37,7 @@ input start;
 input bitIn;
 output [(outByteSize * 8) - 1:0] byteOut;
 output reg finish;
+input waitForBitIn;
 
 // 'private' variables  
 wire _start;
@@ -50,8 +54,8 @@ reg _error = 0;
 always @ (posedge spiClock) begin
     if (_start && ~_running && ~_waiting) begin
         // initial
-        if (~bitIn) begin
-            inputBuffer <= 0;
+        if (~waitForBitIn || ~bitIn) begin
+            inputBuffer <= {{(outByteSize * 8 - 1){1'b0}}, bitIn};
             finish   <= 0;
             _running <= 1;
             _i <= (outByteSize * 8) - 1;                                    // Read the last 7 bits, first bit is always 0;
