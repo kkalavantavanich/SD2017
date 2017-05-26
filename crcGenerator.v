@@ -1,18 +1,13 @@
+/* All files are owned by Kris Kalavantavanich. 
+ * Feel free to use/modify/distribute in the condition that this copyright header is kept unmodified.
+ * Github: https://github.com/kkalavantavanich/SD2017 */
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
 // Create Date: 05/19/2017 11:15:00 AM
-// Design Name: 
+// Design Name: CRC Generator - Slave
 // Module Name: crcGenerator
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
+// Project Name: SD2017
+// Target Devices: Basys3
 // Revision: 1.02
 // Revision 1.02 - CRC General generator and length
 // Revision 0.01 - File Created
@@ -21,7 +16,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 // CRC Slave : should be used through CRC Master
-// Clear > Enable
+// Priority Clear > Enable 
 module crcGenerator 
 #(parameter LEN = 7)(
     input inputBit,
